@@ -1,0 +1,21 @@
+[package]
+name = "isuconf"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+serde = "1.0"
+serde_yaml = "0.8"
+serde_derive = "1.0"
+anyhow = "1.0"
+structopt = "0.3"
+chrono = "0.4"
+futures = "0.3"
+itertools = "0.10.0"
+tokio = { version = "1", features = ["full"] }
+openssh = "0.8.1"
+async-recursion = "0.3.2"
+colored = "2"
