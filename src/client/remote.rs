@@ -184,6 +184,10 @@ impl RemoteConfigClient {
             )
             .await?;
         } else {
+            let mut path = convert_to_string(&path)?;
+            if path.starts_with("~") {
+                path = path.replacen("~", format!("/home/{}", self.config.user).as_str(), 1);
+            }
             let mut remote_file = session.sftp().write_to(path).await?;
             remote_file.write_all(config.as_bytes()).await?;
             remote_file.close().await?;
