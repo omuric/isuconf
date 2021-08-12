@@ -1,6 +1,6 @@
 use anyhow::Result;
 use colored::Colorize;
-use isuconf::client::{convert_to_string, LocalConfigClient, RemoteConfigClient};
+use isuconf::client::{convert_to_string, is_target_config, LocalConfigClient, RemoteConfigClient};
 use isuconf::config::read_config;
 use itertools::Itertools;
 use std::path::Path;
@@ -146,16 +146,8 @@ async fn pull(opt: PullOpt) -> Result<()> {
     let local_client = LocalConfigClient::new(&config.local);
 
     for target in &config.targets {
-        if let Some(t1) = &opt.target_config_path {
-            if let Some(t2) = t1.strip_prefix(&config.local.config_root_path) {
-                if &target.path != t2 && &target.path != t1 {
-                    continue;
-                }
-            } else {
-                if &target.path != t1 {
-                    continue;
-                }
-            }
+        if !is_target_config(&config, target, &opt.target_config_path) {
+            return Ok(());
         }
         if !target.pull {
             println!("skip {}", target.path.as_str().purple());
@@ -237,16 +229,8 @@ async fn push(opt: PushOpt) -> Result<()> {
     let remote_client = RemoteConfigClient::new(&config.remote).await?;
 
     for target in &config.targets {
-        if let Some(t1) = &opt.target_config_path {
-            if let Some(t2) = t1.strip_prefix(&config.local.config_root_path) {
-                if &target.path != t2 && &target.path != t1 {
-                    continue;
-                }
-            } else {
-                if &target.path != t1 {
-                    continue;
-                }
-            }
+        if !is_target_config(&config, target, &opt.target_config_path) {
+            return Ok(());
         }
         if !target.push {
             println!("skip {}", target.path.as_str().purple());
