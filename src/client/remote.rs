@@ -101,26 +101,23 @@ impl RemoteConfigClient {
         if !self.exists(server, target).await? {
             return Ok(vec![]);
         }
-        let command = format!("find {} -type f", target.path);
+        let command = format!("find {} -type f -o -type l", target.path);
         let result = self
             .remote_command(server.to_owned(), command, target.sudo)
             .await?;
         let paths: Result<Vec<_>, _> = result
             .split_whitespace()
-            .map(|s| {
-                let home_prefix = format!("/home/{}", self.config.user);
-                if s.starts_with(&home_prefix) {
-                    return s.replace(&home_prefix, "~");
-                }
-                s.to_owned()
-            })
             .filter_map(|s| {
                 if s.is_empty() {
-                    None
-                } else {
-                    Some(Path::new(&s).to_owned())
+                    return None;
                 }
+                let home_prefix = format!("/home/{}", self.config.user);
+                if s.starts_with(&home_prefix) {
+                    return Some(s.replace(&home_prefix, "~"));
+                }
+                Some(s.to_owned())
             })
+            .map(|s| Path::new(&s).to_owned())
             .map(|p| p.strip_prefix(&target.path).map(|path| path.to_owned()))
             .collect();
         Ok(paths?)
