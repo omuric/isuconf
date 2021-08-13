@@ -39,7 +39,7 @@ async fn status(opt: StatusOpt) -> Result<()> {
             let paths = {
                 let mut paths = remote_client.file_relative_paths(server, target).await?;
                 paths.append(&mut local_client.file_relative_paths(server, target).await?);
-                paths.iter().unique().map(|p| p.clone()).collect_vec()
+                paths.iter().unique().cloned().collect_vec()
             };
             for path in &paths {
                 let real_path = convert_to_string(&remote_client.real_path(server, target, path)?)?;
@@ -74,7 +74,7 @@ async fn status(opt: StatusOpt) -> Result<()> {
             let paths = {
                 let mut paths = remote_client.file_relative_paths(server, target).await?;
                 paths.append(&mut local_client.file_relative_paths(server, target).await?);
-                paths.iter().unique().map(|p| p.clone()).collect_vec()
+                paths.iter().unique().cloned().collect_vec()
             };
             for path in &paths {
                 let real_path = convert_to_string(&local_client.real_path(server, target, path)?)?;
@@ -89,7 +89,7 @@ async fn status(opt: StatusOpt) -> Result<()> {
             }
         }
     }
-    if let Some(server) = &config.remote.servers.iter().next() {
+    if let Some(server) = &config.remote.servers.get(0) {
         for target in &config.targets {
             if !target.only {
                 continue;
@@ -107,7 +107,7 @@ async fn status(opt: StatusOpt) -> Result<()> {
             let paths = {
                 let mut paths = remote_client.file_relative_paths(server, target).await?;
                 paths.append(&mut local_client.file_relative_paths(server, target).await?);
-                paths.iter().unique().map(|p| p.clone()).collect_vec()
+                paths.iter().unique().cloned().collect_vec()
             };
             for path in &paths {
                 let real_path = convert_to_string(&local_client.real_path(server, target, path)?)?;

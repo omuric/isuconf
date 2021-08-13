@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use serde_derive::Deserialize;
-use std::path::Path;
 use tokio::fs;
 
 fn default_as_true() -> bool {
@@ -42,10 +41,14 @@ pub struct CliConfig {
     pub targets: Vec<TargetConfig>,
 }
 
-pub async fn read_config(config_path: impl AsRef<Path>) -> Result<CliConfig> {
-    let json = fs::read_to_string(config_path)
-        .await
-        .with_context(|| format!("Not found configuration file.",))?;
-    let config = serde_yaml::from_str(&json).with_context(|| format!("Invalid config file."))?;
+pub async fn read_config(config_path: String) -> Result<CliConfig> {
+    let json = fs::read_to_string(&config_path).await.with_context(|| {
+        format!(
+            "Not found configuration file. (config_path={})",
+            &config_path
+        )
+    })?;
+    let config = serde_yaml::from_str(&json)
+        .with_context(|| format!("Invalid config file. (config_path={})", config_path))?;
     Ok(config)
 }

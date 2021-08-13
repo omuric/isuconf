@@ -3,14 +3,14 @@ use anyhow::{anyhow, Result};
 use itertools::Itertools;
 use std::path::{Path, PathBuf};
 
-pub fn join_path(parent_path: &PathBuf, path: &PathBuf) -> PathBuf {
+pub fn join_path(parent_path: &Path, path: &Path) -> PathBuf {
     if path == Path::new("") {
         return parent_path.to_owned();
     }
     parent_path.join(path)
 }
 
-pub fn convert_to_string(path: &PathBuf) -> Result<String> {
+pub fn convert_to_string(path: &Path) -> Result<String> {
     path.to_owned()
         .into_os_string()
         .into_string()
@@ -32,7 +32,7 @@ pub fn is_target_config(
         prefixes.push(config.local.config_root_path.clone());
         for prefix in prefixes {
             if let Some(t2) = t1.strip_prefix(&prefix) {
-                if &target.path == t2 {
+                if target.path == t2 {
                     return true;
                 }
             }

@@ -49,8 +49,7 @@ impl LocalConfigClient {
                 target_path.strip_prefix("/")?
             } else {
                 target_path
-            })
-            .to_owned();
+            });
         Ok(path)
     }
 
@@ -62,7 +61,7 @@ impl LocalConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
     ) -> Result<bool> {
         Ok(self.real_path(server, target, relative_path)?.exists())
     }
@@ -94,7 +93,7 @@ impl LocalConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
     ) -> Result<PathBuf> {
         Ok(join_path(&self.path(server, target)?, relative_path))
     }
@@ -103,7 +102,7 @@ impl LocalConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
     ) -> Result<String> {
         let path = self.real_path(server, target, relative_path)?;
         Ok(fs::read_to_string(path).await?)
@@ -113,7 +112,7 @@ impl LocalConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
         config: String,
     ) -> Result<()> {
         let path = self.real_path(server, target, relative_path)?;

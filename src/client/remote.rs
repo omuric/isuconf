@@ -33,16 +33,16 @@ impl RemoteConfigClient {
         Ok(client)
     }
 
-    async fn remote_session(&self, server: String) -> Result<&Session> {
+    async fn remote_session(&self, server: &str) -> Result<&Session> {
         let session = self
             .sessions
-            .get(&server)
+            .get(&server.to_owned())
             .with_context(|| format!("Not found connection. (server={})", server))?;
         Ok(session)
     }
 
-    async fn remote_command(&self, server: String, command: String, sudo: bool) -> Result<String> {
-        let mut command = command;
+    async fn remote_command(&self, server: &str, command: &str, sudo: bool) -> Result<String> {
+        let mut command = command.to_owned();
         if sudo {
             command = format!("sudo sh -c \"{}\"", command);
         }
@@ -72,7 +72,7 @@ impl RemoteConfigClient {
     pub async fn exists(&self, server: &str, target: &TargetConfig) -> Result<bool> {
         let command = format!("ls {}", target.path);
         let exists = self
-            .remote_command(server.to_owned(), command, target.sudo)
+            .remote_command(server, &command, target.sudo)
             .await
             .is_ok();
         Ok(exists)
@@ -82,12 +82,12 @@ impl RemoteConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
     ) -> Result<bool> {
         let path = self.real_path(server, target, relative_path)?;
         let command = format!("ls {}", convert_to_string(&path)?);
         let exists = self
-            .remote_command(server.to_owned(), command, target.sudo)
+            .remote_command(server, &command, target.sudo)
             .await
             .is_ok();
         Ok(exists)
@@ -102,9 +102,7 @@ impl RemoteConfigClient {
             return Ok(vec![]);
         }
         let command = format!("find {} -type f -o -type l", target.path);
-        let result = self
-            .remote_command(server.to_owned(), command, target.sudo)
-            .await?;
+        let result = self.remote_command(server, &command, target.sudo).await?;
         let paths: Result<Vec<_>, _> = result
             .split_whitespace()
             .filter_map(|s| {
@@ -127,7 +125,7 @@ impl RemoteConfigClient {
         &self,
         _server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
     ) -> Result<PathBuf> {
         Ok(join_path(
             &Path::new(&target.path).to_owned(),
@@ -139,13 +137,11 @@ impl RemoteConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
     ) -> Result<String> {
         let path = self.real_path(server, target, relative_path)?;
         let command = format!("cat {}", convert_to_string(&path)?);
-        let result = self
-            .remote_command(server.to_owned(), command, target.sudo)
-            .await?;
+        let result = self.remote_command(server, &command, target.sudo).await?;
         Ok(result)
     }
 
@@ -153,11 +149,11 @@ impl RemoteConfigClient {
         &self,
         server: &str,
         target: &TargetConfig,
-        relative_path: &PathBuf,
+        relative_path: &Path,
         config: String,
     ) -> Result<()> {
         let path = self.real_path(server, target, relative_path)?;
-        let session = self.remote_session(server.to_string()).await?;
+        let session = self.remote_session(server).await?;
 
         if target.sudo {
             let tmp_path = format!("/tmp/{}", Local::now().to_rfc3339());
@@ -167,23 +163,26 @@ impl RemoteConfigClient {
 
             if let Some(parent) = path.parent() {
                 self.remote_command(
-                    server.to_owned(),
-                    format!("mkdir -p {}", convert_to_string(&parent.to_owned())?),
+                    server,
+                    &format!("mkdir -p {}", convert_to_string(&parent.to_owned())?),
                     true,
                 )
                 .await?;
             }
 
             self.remote_command(
-                server.to_owned(),
-                format!("mv {} {}", tmp_path, convert_to_string(&path)?),
+                server,
+                &format!("cp {} {}", tmp_path, convert_to_string(&path)?),
                 true,
             )
             .await?;
+
+            self.remote_command(server, &format!("rm {}", tmp_path), true)
+                .await?;
         } else {
             let mut path = convert_to_string(&path)?;
-            if path.starts_with("~") {
-                path = path.replacen("~", format!("/home/{}", self.config.user).as_str(), 1);
+            if path.starts_with('~') {
+                path = path.replacen('~', format!("/home/{}", self.config.user).as_str(), 1);
             }
             let mut remote_file = session.sftp().write_to(path).await?;
             remote_file.write_all(config.as_bytes()).await?;
