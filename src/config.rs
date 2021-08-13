@@ -3,6 +3,14 @@ use serde_derive::Deserialize;
 use std::path::Path;
 use tokio::fs;
 
+fn default_as_true() -> bool {
+    true
+}
+
+fn default_as_false() -> bool {
+    false
+}
+
 #[derive(Deserialize, Clone)]
 pub struct RemoteConfig {
     pub servers: Vec<String>,
@@ -17,9 +25,13 @@ pub struct LocalConfig {
 #[derive(Deserialize, Clone)]
 pub struct TargetConfig {
     pub path: String,
+    #[serde(default = "default_as_true")]
     pub push: bool,
+    #[serde(default = "default_as_true")]
     pub pull: bool,
+    #[serde(default = "default_as_false")]
     pub sudo: bool,
+    #[serde(default = "default_as_false")]
     pub only: bool,
 }
 

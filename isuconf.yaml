@@ -7,17 +7,20 @@ local:
   config_root_path: ./config
 targets:
   - path: /etc/hosts
-    push: true
-    pull: true
     sudo: true
     only: true
   - path: /etc/sysctl.conf
-    push: true
-    pull: true
     sudo: true
-    only: false
-  - path: ~/.env
-    push: true
-    pull: true
-    sudo: false
-    only: false
+  - path: /etc/nginx/nginx.conf
+    sudo: true
+  - path: /etc/nginx/conf.d
+    sudo: true
+  - path: /etc/mysql/my.cnf
+    sudo: true
+  - path: /etc/mysql/conf.d
+    sudo: true
+  - path: /etc/mysql/mysql.conf.d
+    sudo: true
+  - path: ~/.env.sh
+  - path: ~/kataribe.toml
+    only: true
