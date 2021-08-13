@@ -35,7 +35,7 @@ TODO: Change to installation via Crates.io
 
 ## Configuration
 
-examples
+isuconf.yaml
 
 ```yml
 remote:
@@ -76,5 +76,18 @@ targets:
 |          | only            | boolean | Use the same configuration for all remote servers. (default: false)<br>The layout of the local file is as follows.<br>`false`: `./{local.config_root_dir}/{server}/{config}`<br>`true`: `./{local.config_root_dir}/{config}` | 
 ## Usage
 
-TBW
+```bash
+# Check status.
+$ isuconf status
+# Specify the cli configuration file. (default: ./isuconf.yml)
+$ isuconf status --config ./isuconf.yml
+# Pull configuration files from remote servers.
+$ isuconf pull --dry-run
+$ isuconf pull
+# Push configuration files to remote servers.
+$ isuconf push --dry-run
+$ isuconf push
+# Operate only on the specified path.
+$ isuconf pull /etc/hosts
+```
 
