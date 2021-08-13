@@ -41,5 +41,5 @@ pub fn is_target_config(
             return true;
         }
     }
-    false
+    true
 }
