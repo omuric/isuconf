@@ -10,8 +10,8 @@ Download binaries directly.
 
 ```bash
 $ wget https://github.com/omuric/isuconf/releases/download/0.1.2/isuconf_0.1.2_x86_64-unknown-linux-musl.zip
-$ unzip isuconf_0.1.0_x86_64-unknown-linux-musl.zip isuconf
-$ rm isuconf_0.1.0_x86_64-unknown-linux-musl.zip
+$ unzip isuconf_*_x86_64-unknown-linux-musl.zip isuconf
+$ rm isuconf_*_x86_64-unknown-linux-musl.zip
 $ ./isuconf --help
 ```
 
@@ -47,20 +47,12 @@ local:
   config_root_path: ./config
 targets:
   - path: /etc/hosts
-    push: true
-    pull: true
     sudo: true
     only: true
   - path: /etc/sysctl.conf
-    push: true
-    pull: true
     sudo: true
-    only: false
   - path: ~/.env
-    push: true
-    pull: true
-    sudo: false
-    only: false
+
 ```
 | property |                 | type    | description                                                                                                           | 
 | -------  | --------------- | ------- | --------------------------------------------------------------------------------------------------------------------- | 
@@ -79,8 +71,8 @@ targets:
 ```bash
 # Check status.
 $ isuconf status
-# Specify the cli configuration file. (default: ./isuconf.yml)
-$ isuconf status --config ./isuconf.yml
+# Specify the cli configuration file. (default: ./isuconf.yaml)
+$ isuconf status --config ./isuconf.yaml
 # Pull configuration files from remote servers.
 $ isuconf pull --dry-run
 $ isuconf pull
