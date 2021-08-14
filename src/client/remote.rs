@@ -2,7 +2,7 @@ use crate::client::{convert_to_string, join_path};
 use crate::config::{RemoteConfig, TargetConfig};
 use anyhow::{anyhow, Context, Result};
 use chrono::Local;
-use openssh::{KnownHosts, Session};
+use openssh::{KnownHosts, Session, SessionBuilder};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use tokio::io::AsyncWriteExt;
@@ -17,11 +17,10 @@ impl RemoteConfigClient {
         let mut sessions = HashMap::new();
 
         for server in &config.servers {
-            let session = Session::connect(
-                format!("ssh://{}@{}", config.user, server),
-                KnownHosts::Accept,
-            )
-            .await?;
+            let mut builder = SessionBuilder::default();
+            builder.known_hosts_check(KnownHosts::Accept);
+            builder.control_directory("/tmp");
+            let session = builder.connect(format!("ssh://{}@{}", config.user, server)).await?;
             sessions.insert(server.clone(), session);
         }
 
