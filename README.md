@@ -9,7 +9,7 @@ Isuconf is tool for manage remote server configs via ssh.
 Download binaries directly.
 
 ```bash
-$ wget https://github.com/omuric/isuconf/releases/download/0.1.0/isuconf_0.1.0_x86_64-unknown-linux-musl.zip
+$ wget https://github.com/omuric/isuconf/releases/download/0.1.2/isuconf_0.1.2_x86_64-unknown-linux-musl.zip
 $ unzip isuconf_0.1.0_x86_64-unknown-linux-musl.zip isuconf
 $ rm isuconf_0.1.0_x86_64-unknown-linux-musl.zip
 $ ./isuconf --help
