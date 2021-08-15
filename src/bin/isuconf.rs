@@ -15,7 +15,7 @@ struct StatusOpt {
 
 async fn status(opt: StatusOpt) -> Result<()> {
     let config = read_config(opt.config).await?;
-    let remote_client = RemoteConfigClient::new(&config.remote).await?;
+    let mut remote_client = RemoteConfigClient::new(&config.remote).await?;
     let local_client = LocalConfigClient::new(&config.local);
 
     for server in &config.remote.servers {
@@ -123,6 +123,8 @@ async fn status(opt: StatusOpt) -> Result<()> {
         }
     }
 
+    remote_client.close().await?;
+
     Ok(())
 }
 
@@ -142,7 +144,7 @@ struct PullOpt {
 async fn pull(opt: PullOpt) -> Result<()> {
     let cli_config = read_config(opt.config).await?;
 
-    let remote_client = RemoteConfigClient::new(&cli_config.remote).await?;
+    let mut remote_client = RemoteConfigClient::new(&cli_config.remote).await?;
     let local_client = LocalConfigClient::new(&cli_config.local);
 
     for target in &cli_config.targets {
@@ -208,6 +210,8 @@ async fn pull(opt: PullOpt) -> Result<()> {
         }
     }
 
+    remote_client.close().await?;
+
     Ok(())
 }
 
@@ -228,7 +232,7 @@ async fn push(opt: PushOpt) -> Result<()> {
     let cli_config = read_config(opt.config).await?;
 
     let local_client = LocalConfigClient::new(&cli_config.local);
-    let remote_client = RemoteConfigClient::new(&cli_config.remote).await?;
+    let mut remote_client = RemoteConfigClient::new(&cli_config.remote).await?;
 
     for target in &cli_config.targets {
         if let Some(target_config_path) = &opt.target_config_path {
@@ -305,6 +309,8 @@ async fn push(opt: PushOpt) -> Result<()> {
             }
         }
     }
+
+    remote_client.close().await?;
 
     Ok(())
 }

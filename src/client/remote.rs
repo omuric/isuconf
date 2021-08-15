@@ -2,6 +2,7 @@ use crate::client::{convert_to_string, join_path};
 use crate::config::{RemoteConfig, TargetConfig};
 use anyhow::{anyhow, Context, Result};
 use chrono::Local;
+use itertools::Itertools;
 use openssh::{KnownHosts, Session, SessionBuilder};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -23,6 +24,7 @@ impl RemoteConfigClient {
             let session = builder
                 .connect(format!("ssh://{}@{}", config.user, server))
                 .await?;
+
             sessions.insert(server.clone(), session);
         }
 
@@ -217,6 +219,18 @@ impl RemoteConfigClient {
             remote_file.close().await?;
         }
 
+        Ok(())
+    }
+
+    pub async fn close(&mut self) -> Result<()> {
+        let servers = self.sessions.keys().cloned().collect_vec();
+        for server in servers {
+            let session = self
+                .sessions
+                .remove(&server)
+                .with_context(|| format!("Not found session. (server={})", &server))?;
+            session.close().await?;
+        }
         Ok(())
     }
 }
