@@ -1,5 +1,6 @@
-pub mod common;
+pub use crate::common::*;
+
+pub use self::{local::*, remote::*};
+
 pub mod local;
 pub mod remote;
-
-pub use self::{common::*, local::*, remote::*};

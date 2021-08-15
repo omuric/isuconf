@@ -140,21 +140,23 @@ struct PullOpt {
 }
 
 async fn pull(opt: PullOpt) -> Result<()> {
-    let config = read_config(opt.config).await?;
+    let cli_config = read_config(opt.config).await?;
 
-    let remote_client = RemoteConfigClient::new(&config.remote).await?;
-    let local_client = LocalConfigClient::new(&config.local);
+    let remote_client = RemoteConfigClient::new(&cli_config.remote).await?;
+    let local_client = LocalConfigClient::new(&cli_config.local);
 
-    for target in &config.targets {
-        if !is_target_config(&config, target, &opt.target_config_path) {
-            return Ok(());
+    for target in &cli_config.targets {
+        if let Some(target_config_path) = &opt.target_config_path {
+            if !is_target_config(&cli_config, target, target_config_path) {
+                continue;
+            }
         }
         if !target.pull {
             println!("skip {}", target.path.as_str().purple());
             continue;
         }
         println!("pull {}", target.path.as_str().purple());
-        for (idx, server) in config.remote.servers.iter().enumerate() {
+        for (idx, server) in cli_config.remote.servers.iter().enumerate() {
             let exist = remote_client.exists(server, target).await?;
             if !exist {
                 let real_path = convert_to_string(&remote_client.real_path(
@@ -164,7 +166,7 @@ async fn pull(opt: PullOpt) -> Result<()> {
                 )?)?;
                 println!(
                     "not found {}@{}:{}",
-                    config.remote.user,
+                    cli_config.remote.user,
                     server,
                     real_path.as_str().red(),
                 );
@@ -223,21 +225,23 @@ struct PushOpt {
 }
 
 async fn push(opt: PushOpt) -> Result<()> {
-    let config = read_config(opt.config).await?;
+    let cli_config = read_config(opt.config).await?;
 
-    let local_client = LocalConfigClient::new(&config.local);
-    let remote_client = RemoteConfigClient::new(&config.remote).await?;
+    let local_client = LocalConfigClient::new(&cli_config.local);
+    let remote_client = RemoteConfigClient::new(&cli_config.remote).await?;
 
-    for target in &config.targets {
-        if !is_target_config(&config, target, &opt.target_config_path) {
-            return Ok(());
+    for target in &cli_config.targets {
+        if let Some(target_config_path) = &opt.target_config_path {
+            if !is_target_config(&cli_config, target, target_config_path) {
+                continue;
+            }
         }
         if !target.push {
             println!("skip {}", target.path.as_str().purple());
             continue;
         }
         println!("push {}", target.path.as_str().purple());
-        for server in &config.remote.servers {
+        for server in &cli_config.remote.servers {
             let exist = local_client.exists(server, target).await?;
             if !exist {
                 let real_path = convert_to_string(&local_client.real_path(
@@ -265,13 +269,13 @@ async fn push(opt: PushOpt) -> Result<()> {
                     if local_config == remote_config {
                         println!(
                             "no difference {}@{}:{}",
-                            config.remote.user, server, real_path
+                            cli_config.remote.user, server, real_path
                         );
                         continue;
                     } else {
                         println!(
                             "found the difference {}@{}:{}",
-                            config.remote.user, server, real_path
+                            cli_config.remote.user, server, real_path
                         );
                     }
                     if !opt.dry_run {
@@ -281,7 +285,7 @@ async fn push(opt: PushOpt) -> Result<()> {
                     }
                     println!(
                         "update {}@{}:{}",
-                        config.remote.user,
+                        cli_config.remote.user,
                         server,
                         real_path.as_str().green()
                     );
@@ -293,7 +297,7 @@ async fn push(opt: PushOpt) -> Result<()> {
                     }
                     println!(
                         "create {}@{}:{}",
-                        config.remote.user,
+                        cli_config.remote.user,
                         server,
                         real_path.as_str().green()
                     );
