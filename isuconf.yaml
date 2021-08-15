@@ -2,25 +2,31 @@ remote:
   servers:
     - is1
     - is2
-  user: ubuntu
+  user: isucon
 local:
   config_root_path: ./config
 targets:
   - path: /etc/hosts
     sudo: true
-    only: true
   - path: /etc/sysctl.conf
     sudo: true
   - path: /etc/nginx/nginx.conf
     sudo: true
-  - path: /etc/nginx/conf.d
+    only: true
+  - path: /etc/nginx/sites-enabled
     sudo: true
+    only: true
   - path: /etc/mysql/my.cnf
     sudo: true
+    only: true
   - path: /etc/mysql/conf.d
     sudo: true
+    only: true
   - path: /etc/mysql/mysql.conf.d
     sudo: true
-  - path: ~/.env.sh
+    only: true
+  - path: ~/env.sh
   - path: ~/kataribe.toml
+    only: true
+  - path: ~/isuumo/webapp/mysql
     only: true
