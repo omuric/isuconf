@@ -3,6 +3,8 @@ use anyhow::{anyhow, Result};
 use itertools::Itertools;
 use std::path::{Path, PathBuf};
 
+pub type Binary = Vec<u8>;
+
 pub fn join_path(parent_path: &Path, path: &Path) -> PathBuf {
     if path == Path::new("") {
         return parent_path.to_owned();

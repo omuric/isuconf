@@ -103,9 +103,9 @@ impl LocalConfigClient {
         server: &str,
         target: &TargetConfig,
         relative_path: &Path,
-    ) -> Result<String> {
+    ) -> Result<Vec<u8>> {
         let path = self.real_path(server, target, relative_path)?;
-        Ok(fs::read_to_string(path).await?)
+        Ok(fs::read(path).await?)
     }
 
     pub async fn create(
@@ -113,13 +113,13 @@ impl LocalConfigClient {
         server: &str,
         target: &TargetConfig,
         relative_path: &Path,
-        config: String,
+        config_bytes: Vec<u8>,
     ) -> Result<()> {
         let path = self.real_path(server, target, relative_path)?;
         if let Some(dir) = path.parent() {
             fs::create_dir_all(dir).await?;
         }
-        fs::write(path, config).await?;
+        fs::write(path, config_bytes).await?;
         Ok(())
     }
 }
