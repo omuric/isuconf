@@ -9,26 +9,26 @@ Isuconf is tool for manage remote server configs via ssh.
 Download binaries directly.
 
 ```bash
-$ wget https://github.com/omuric/isuconf/releases/download/0.1.4/isuconf_0.1.4_x86_64-unknown-linux-musl.zip
-$ unzip isuconf_*_x86_64-unknown-linux-musl.zip isuconf
-$ rm isuconf_*_x86_64-unknown-linux-musl.zip
-$ ./isuconf --help
+wget https://github.com/omuric/isuconf/releases/download/0.1.4/isuconf_0.1.4_x86_64-unknown-linux-musl.zip
+unzip isuconf_*_x86_64-unknown-linux-musl.zip isuconf
+rm isuconf_*_x86_64-unknown-linux-musl.zip
+./isuconf --help
 ```
 
 Or build by yourself.
 
 ```bash
-$ git clone git@github.com:omuric/isuconf.git
-$ cd isuconf
-$ cargo build --release
-$ cp ./target/release/isuconf ./isuconf
-$ ./isuconf --help
+git clone git@github.com:omuric/isuconf.git
+cd isuconf
+cargo build --release
+cp ./target/release/isuconf ./isuconf
+./isuconf --help
 ```
 
 (Optional) Place it in `/usr/local/bin`.
 
 ```bash
-$ sudo mv ./isuconf /usr/local/bin/isuconf
+sudo mv ./isuconf /usr/local/bin/isuconf
 ```
 
 TODO: Change to installation via Crates.io
@@ -69,17 +69,17 @@ targets:
 ## Usage
 
 ```bash
-# Check status.
-$ isuconf status
+# View list configs.
+isuconf list
 # Specify the cli configuration file. (default: ./isuconf.yaml)
-$ isuconf status --config ./isuconf.yaml
+isuconf list --config ./isuconf.yaml
 # Pull configuration files from remote servers.
-$ isuconf pull --dry-run
-$ isuconf pull
+isuconf pull --dry-run
+isuconf pull
 # Push configuration files to remote servers.
-$ isuconf push --dry-run
-$ isuconf push
+isuconf push --dry-run
+isuconf push
 # Operate only on the specified path.
-$ isuconf pull /etc/hosts
+isuconf pull /etc/hosts
 ```
 
