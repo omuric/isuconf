@@ -113,8 +113,8 @@ impl RemoteConfigClient {
                     return None;
                 }
                 let home_prefix = format!("/home/{}", self.config.user);
-                if s.starts_with(&home_prefix) {
-                    return Some(s.replace(&home_prefix, "~"));
+                if target.path.starts_with('~') && s.starts_with(&home_prefix) {
+                    return Some(s.replacen(&home_prefix, "~", 1));
                 }
                 Some(s.to_owned())
             })
