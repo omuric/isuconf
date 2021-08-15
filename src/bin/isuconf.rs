@@ -7,13 +7,13 @@ use std::path::Path;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
-struct StatusOpt {
+struct ListOpt {
     // Config path
     #[structopt(short, long, default_value = "./isuconf.yaml")]
     config: String,
 }
 
-async fn status(opt: StatusOpt) -> Result<()> {
+async fn list(opt: ListOpt) -> Result<()> {
     let config = read_config(opt.config).await?;
     let mut remote_client = RemoteConfigClient::new(&config.remote).await?;
     let local_client = LocalConfigClient::new(&config.local);
@@ -318,8 +318,8 @@ async fn push(opt: PushOpt) -> Result<()> {
 #[derive(StructOpt, Debug)]
 #[structopt(name = "isuconf")]
 enum Opt {
-    /// View config status
-    Status(StatusOpt),
+    /// View config list
+    List(ListOpt),
     /// Pull configs from remote
     Pull(PullOpt),
     /// Push configs to remote
@@ -330,7 +330,7 @@ enum Opt {
 async fn main() -> Result<()> {
     let opt: Opt = Opt::from_args();
     match opt {
-        Opt::Status(opt) => status(opt).await,
+        Opt::List(opt) => list(opt).await,
         Opt::Pull(opt) => pull(opt).await,
         Opt::Push(opt) => push(opt).await,
     }
