@@ -6,7 +6,7 @@ Isuconf is tool for manage remote server configs via ssh.
 
 ## Installing
 
-Download binaries directly.
+Download the binary directly.
 
 ```bash
 wget https://github.com/omuric/isuconf/releases/download/0.1.5/isuconf_0.1.5_x86_64-unknown-linux-musl.zip
@@ -15,20 +15,18 @@ rm isuconf_*_x86_64-unknown-linux-musl.zip
 ./isuconf --help
 ```
 
+(Optional) Place it in `/usr/local/bin`.
+
+```bash
+sudo mv ./isuconf /usr/local/bin/isuconf
+```
+
 Or build by yourself.
 
 ```bash
 git clone git@github.com:omuric/isuconf.git
 cd isuconf
-cargo build --release
-cp ./target/release/isuconf ./isuconf
-./isuconf --help
-```
-
-(Optional) Place it in `/usr/local/bin`.
-
-```bash
-sudo mv ./isuconf /usr/local/bin/isuconf
+cargo install --path .
 ```
 
 TODO: Change to installation via Crates.io
@@ -48,10 +46,9 @@ local:
 targets:
   - path: /etc/hosts
     sudo: true
-    only: true
   - path: /etc/sysctl.conf
     sudo: true
-  - path: ~/.env
+    only: true
 
 ```
 | property |                 | type    | description                                                                                                           | 
