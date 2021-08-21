@@ -156,6 +156,9 @@ impl RemoteConfigClient {
             )
             .await?;
 
+            self.remote_command(server, &format!("chmod 644 {}", tmp_path), true)
+                .await?;
+
             let mut remote_file = session.sftp().read_from(&tmp_path).await?;
             remote_file.read_to_end(&mut config).await?;
             remote_file.close().await?;
