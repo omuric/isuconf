@@ -3,8 +3,6 @@ use anyhow::{anyhow, Result};
 use itertools::Itertools;
 use std::path::{Path, PathBuf};
 
-pub type Binary = Vec<u8>;
-
 pub fn join_path(parent_path: &Path, path: &Path) -> PathBuf {
     if path == Path::new("") {
         return parent_path.to_owned();
@@ -22,7 +20,7 @@ pub fn convert_to_string(path: &Path) -> Result<String> {
 pub fn is_target_config(
     cli_config: &CliConfig,
     config: &TargetConfig,
-    target_config_path: &String,
+    target_config_path: &str,
 ) -> bool {
     let mut prefixes = cli_config
         .remote
@@ -35,12 +33,12 @@ pub fn is_target_config(
 
     for prefix in prefixes {
         if let Some(target_config_path) = target_config_path.strip_prefix(&prefix) {
-            if &config.path == target_config_path {
+            if config.path == target_config_path {
                 return true;
             }
         }
     }
-    if &config.path == target_config_path {
+    if config.path == target_config_path {
         return true;
     }
     false
