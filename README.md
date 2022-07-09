@@ -38,9 +38,12 @@ isuconf.yaml
 ```yml
 remote:
   servers:
-    - is1
-    - is2
+    - name: is1
+      host: xx.xx.xx.xx
+    - name: is2
+      host: xx.xx.xx.xx
   user: ubuntu
+  identity: ~/.ssh/isucon.pem
 local:
   config_root_path: ./config
 targets:
@@ -51,18 +54,22 @@ targets:
     only: true
 
 ```
-| property |                 | type    | description                                                                                                           | 
-| -------  | --------------- | ------- | --------------------------------------------------------------------------------------------------------------------- | 
-| remote   | servers         | array   | Target remote servers.                                                                                                | 
-|          | user            | string  | User to operate remote server.                                                                                        | 
-| server   |                 | string  | Remote server hostname.                                                                                               | 
-| local    | config_root_dir | string  | Root directory of the configuration to be placed locally.                                                             | 
-| targets  |                 | array   | Target configs.                                                                                                       | 
-| target   | path            | string  | Config path. (file or directory)                                                                                      | 
-|          | push            | boolean | Push local config. (default: true)                                                                                    |
-|          | pull            | boolean | Pull remote config. (default: true)                                                                                   | 
-|          | sudo            | boolean | Use sudo to operate the remote configuration. (default: false)                                                        | 
+
+| property |                 | type    | description                                                                                                                                                                                                                  | 
+|----------|-----------------| ------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
+| remote   | servers         | array   | Target remote servers.                                                                                                                                                                                                       | 
+|          | user            | string  | User to operate remote server.                                                                                                                                                                                               | 
+|          | identity        | string  | Identity file to connect remote server.                                                                                                                                                                                      | 
+| server   | alias           | string  | Remote server alias name. (optional)                                                                                                                                                                                         | 
+|          | host            | string  | Remote server hostname.                                                                                                                                                                                                      | 
+| local    | config_root_dir | string  | Root directory of the configuration to be placed locally.                                                                                                                                                                    | 
+| targets  |                 | array   | Target configs.                                                                                                                                                                                                              | 
+| target   | path            | string  | Config path. (file or directory)                                                                                                                                                                                             | 
+|          | push            | boolean | Push local config. (default: true)                                                                                                                                                                                           |
+|          | pull            | boolean | Pull remote config. (default: true)                                                                                                                                                                                          | 
+|          | sudo            | boolean | Use sudo to operate the remote configuration. (default: false)                                                                                                                                                               | 
 |          | only            | boolean | Use the same configuration for all remote servers. (default: false)<br>The layout of the local file is as follows.<br>`false`: `./{local.config_root_dir}/{server}/{config}`<br>`true`: `./{local.config_root_dir}/{config}` | 
+
 ## Usage
 
 ```bash
