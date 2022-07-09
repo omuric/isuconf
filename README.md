@@ -38,9 +38,9 @@ isuconf.yaml
 ```yml
 remote:
   servers:
-    - name: is1
+    - alias: is1
       host: xx.xx.xx.xx
-    - name: is2
+    - alias: is2
       host: xx.xx.xx.xx
   user: ubuntu
   identity: ~/.ssh/isucon.pem
@@ -85,5 +85,9 @@ isuconf push --dry-run
 isuconf push
 # Operate only on the specified path.
 isuconf pull /etc/hosts
+# Helper command for ssh
+isuconf ssh is1
+# Print ~/.ssh/config
+isuconf ssh-config
 ```
 
