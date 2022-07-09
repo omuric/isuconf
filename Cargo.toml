@@ -1,7 +1,7 @@
 [package]
 name = "isuconf"
 version = "0.1.8"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,6 +16,6 @@ chrono = "0.4"
 futures = "0.3"
 itertools = "0.10.0"
 tokio = { version = "1", features = ["full"] }
-openssh = "0.8.1"
+openssh = "0.8"
 async-recursion = "0.3.2"
 colored = "2"
