@@ -347,6 +347,63 @@ async fn push(opt: PushOpt) -> Result<()> {
 }
 
 #[derive(StructOpt, Debug)]
+struct SshOpt {
+    // Config path
+    #[structopt(short, long, default_value = "./isuconf.yaml")]
+    config: String,
+    // Server name
+    #[structopt(name = "SERVER_NAME")]
+    server_name: String,
+}
+
+async fn ssh(opt: SshOpt) -> Result<()> {
+    let cli_config = read_config(opt.config).await?;
+    let server_name = opt.server_name.to_owned();
+
+    let remote = cli_config.remote;
+
+    let server = remote
+        .servers
+        .iter()
+        .find(|server| server.name() == server_name);
+
+    if let Some(server) = server {
+        print!("ssh {}@{}", remote.user, server.host);
+
+        if let Some(identity) = &remote.identity {
+            print!(" -i {}", identity)
+        }
+
+        println!();
+    }
+
+    Ok(())
+}
+
+#[derive(StructOpt, Debug)]
+struct SshConfigOpt {
+    // Config path
+    #[structopt(short, long, default_value = "./isuconf.yaml")]
+    config: String,
+}
+
+async fn ssh_config(opt: SshConfigOpt) -> Result<()> {
+    let cli_config = read_config(opt.config).await?;
+    let remote = &cli_config.remote;
+
+    for server in &remote.servers {
+        println!("Host {}", server.name());
+        println!("  HostName {}", &server.host);
+        println!("  User {}", &remote.user);
+        if let Some(identity) = &remote.identity {
+            print!("  IdentityFile {}", identity)
+        }
+        println!("");
+    }
+    Ok(())
+}
+
+#[derive(StructOpt, Debug)]
 #[structopt(name = "isuconf")]
 enum Opt {
     /// View config list
@@ -355,6 +412,10 @@ enum Opt {
     Pull(PullOpt),
     /// Push configs to remote
     Push(PushOpt),
+    /// Helper command for ssh
+    Ssh(SshOpt),
+    /// Helper command for ssh config
+    SshConfig(SshConfigOpt),
 }
 
 #[tokio::main]
@@ -364,5 +425,7 @@ async fn main() -> Result<()> {
         Opt::List(opt) => list(opt).await,
         Opt::Pull(opt) => pull(opt).await,
         Opt::Push(opt) => push(opt).await,
+        Opt::Ssh(opt) => ssh(opt).await,
+        Opt::SshConfig(opt) => ssh_config(opt).await,
     }
 }
