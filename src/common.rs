@@ -26,7 +26,7 @@ pub fn is_target_config(
         .remote
         .servers
         .iter()
-        .map(|server| format!("{}/{}", cli_config.local.config_root_path, server))
+        .map(|server| format!("{}/{}", cli_config.local.config_root_path, server.name()))
         .collect_vec();
     prefixes.push(cli_config.local.config_root_path.clone());
     prefixes.push(format!("{}/", cli_config.local.config_root_path.clone()));

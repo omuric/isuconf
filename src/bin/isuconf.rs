@@ -21,15 +21,15 @@ async fn list(opt: ListOpt) -> Result<()> {
     for server in &config.remote.servers {
         println!(
             "{}",
-            format!("{}@{}", config.remote.user.as_str(), server)
+            format!("{}@{}", config.remote.user.as_str(), server.name())
                 .as_str()
                 .purple()
         );
         for target in &config.targets {
-            let exist = remote_client.exists(server, target).await?;
+            let exist = remote_client.exists(&server.name(), target).await?;
             if !exist {
                 let real_path = convert_to_string(&remote_client.real_path(
-                    server,
+                    &server.name(),
                     target,
                     &Path::new("").to_owned(),
                 )?)?;
@@ -37,14 +37,21 @@ async fn list(opt: ListOpt) -> Result<()> {
                 continue;
             }
             let paths = {
-                let mut paths = remote_client.file_relative_paths(server, target).await?;
-                paths.append(&mut local_client.file_relative_paths(server, target).await?);
+                let mut paths = remote_client
+                    .file_relative_paths(&server.name(), target)
+                    .await?;
+                paths.append(
+                    &mut local_client
+                        .file_relative_paths(&server.name(), target)
+                        .await?,
+                );
                 paths.iter().unique().cloned().collect_vec()
             };
             for path in &paths {
-                let real_path = convert_to_string(&remote_client.real_path(server, target, path)?)?;
+                let real_path =
+                    convert_to_string(&remote_client.real_path(&server.name(), target, path)?)?;
                 if remote_client
-                    .exists_relative_path(server, target, path)
+                    .exists_relative_path(&server.name(), target, path)
                     .await?
                 {
                     println!("  {}", real_path.as_str());
@@ -61,10 +68,10 @@ async fn list(opt: ListOpt) -> Result<()> {
             if target.only {
                 continue;
             }
-            let exist = local_client.exists(server, target).await?;
+            let exist = local_client.exists(&server.name(), target).await?;
             if !exist {
                 let real_path = convert_to_string(&local_client.real_path(
-                    server,
+                    &server.name(),
                     target,
                     &Path::new("").to_owned(),
                 )?)?;
@@ -72,14 +79,21 @@ async fn list(opt: ListOpt) -> Result<()> {
                 continue;
             }
             let paths = {
-                let mut paths = remote_client.file_relative_paths(server, target).await?;
-                paths.append(&mut local_client.file_relative_paths(server, target).await?);
+                let mut paths = remote_client
+                    .file_relative_paths(&server.name(), target)
+                    .await?;
+                paths.append(
+                    &mut local_client
+                        .file_relative_paths(&server.name(), target)
+                        .await?,
+                );
                 paths.iter().unique().cloned().collect_vec()
             };
             for path in &paths {
-                let real_path = convert_to_string(&local_client.real_path(server, target, path)?)?;
+                let real_path =
+                    convert_to_string(&local_client.real_path(&server.name(), target, path)?)?;
                 if local_client
-                    .exists_relative_path(server, target, path)
+                    .exists_relative_path(&server.name(), target, path)
                     .await?
                 {
                     println!("  {}", real_path.as_str());
@@ -94,10 +108,10 @@ async fn list(opt: ListOpt) -> Result<()> {
             if !target.only {
                 continue;
             }
-            let exist = local_client.exists(server, target).await?;
+            let exist = local_client.exists(&server.name(), target).await?;
             if !exist {
                 let real_path = convert_to_string(&local_client.real_path(
-                    server,
+                    &server.name(),
                     target,
                     &Path::new("").to_owned(),
                 )?)?;
@@ -105,14 +119,21 @@ async fn list(opt: ListOpt) -> Result<()> {
                 continue;
             }
             let paths = {
-                let mut paths = remote_client.file_relative_paths(server, target).await?;
-                paths.append(&mut local_client.file_relative_paths(server, target).await?);
+                let mut paths = remote_client
+                    .file_relative_paths(&server.name(), target)
+                    .await?;
+                paths.append(
+                    &mut local_client
+                        .file_relative_paths(&server.name(), target)
+                        .await?,
+                );
                 paths.iter().unique().cloned().collect_vec()
             };
             for path in &paths {
-                let real_path = convert_to_string(&local_client.real_path(server, target, path)?)?;
+                let real_path =
+                    convert_to_string(&local_client.real_path(&server.name(), target, path)?)?;
                 if local_client
-                    .exists_relative_path(server, target, path)
+                    .exists_relative_path(&server.name(), target, path)
                     .await?
                 {
                     println!("  {}", real_path.as_str());
@@ -159,17 +180,17 @@ async fn pull(opt: PullOpt) -> Result<()> {
         }
         println!("pull {}", target.path.as_str().purple());
         for (idx, server) in cli_config.remote.servers.iter().enumerate() {
-            let exist = remote_client.exists(server, target).await?;
+            let exist = remote_client.exists(&server.name(), target).await?;
             if !exist {
                 let real_path = convert_to_string(&remote_client.real_path(
-                    server,
+                    &server.name(),
                     target,
                     &Path::new("").to_owned(),
                 )?)?;
                 println!(
                     "not found {}@{}:{}",
                     cli_config.remote.user,
-                    server,
+                    &server.name(),
                     real_path.as_str().red(),
                 );
                 continue;
@@ -177,15 +198,18 @@ async fn pull(opt: PullOpt) -> Result<()> {
             if idx >= 1 && target.only {
                 continue;
             }
-            let paths = remote_client.file_relative_paths(server, target).await?;
+            let paths = remote_client
+                .file_relative_paths(&server.name(), target)
+                .await?;
             for path in &paths {
-                let remote_config = remote_client.get(server, target, path).await?;
-                let real_path = convert_to_string(&local_client.real_path(server, target, path)?)?;
+                let remote_config = remote_client.get(&server.name(), target, path).await?;
+                let real_path =
+                    convert_to_string(&local_client.real_path(&server.name(), target, path)?)?;
                 if local_client
-                    .exists_relative_path(server, target, path)
+                    .exists_relative_path(&server.name(), target, path)
                     .await?
                 {
-                    let local_config = local_client.get(server, target, path).await?;
+                    let local_config = local_client.get(&server.name(), target, path).await?;
                     if remote_config == local_config {
                         println!("no difference {}", real_path);
                         continue;
@@ -194,14 +218,14 @@ async fn pull(opt: PullOpt) -> Result<()> {
                     }
                     if !opt.dry_run {
                         local_client
-                            .create(server, target, path, remote_config)
+                            .create(&server.name(), target, path, remote_config)
                             .await?;
                     }
                     println!("update {}", real_path.as_str().green());
                 } else {
                     if !opt.dry_run {
                         local_client
-                            .create(server, target, path, remote_config)
+                            .create(&server.name(), target, path, remote_config)
                             .await?;
                     }
                     println!("create {}", real_path.as_str().green());
@@ -246,10 +270,10 @@ async fn push(opt: PushOpt) -> Result<()> {
         }
         println!("push {}", target.path.as_str().purple());
         for server in &cli_config.remote.servers {
-            let exist = local_client.exists(server, target).await?;
+            let exist = local_client.exists(&server.name(), target).await?;
             if !exist {
                 let real_path = convert_to_string(&local_client.real_path(
-                    server,
+                    &server.name(),
                     target,
                     &Path::new("").to_owned(),
                 )?)?;
@@ -260,49 +284,56 @@ async fn push(opt: PushOpt) -> Result<()> {
                     continue;
                 }
             }
-            let paths = local_client.file_relative_paths(server, target).await?;
+            let paths = local_client
+                .file_relative_paths(&server.name(), target)
+                .await?;
             for path in &paths {
-                let local_config = local_client.get(server, target, path).await?;
-                let real_path = convert_to_string(&remote_client.real_path(server, target, path)?)?;
+                let local_config = local_client.get(&server.name(), target, path).await?;
+                let real_path =
+                    convert_to_string(&remote_client.real_path(&server.name(), target, path)?)?;
                 if remote_client
-                    .exists_relative_path(server, target, path)
+                    .exists_relative_path(&server.name(), target, path)
                     .await?
                 {
-                    let remote_config = remote_client.get(server, target, path).await?;
+                    let remote_config = remote_client.get(&server.name(), target, path).await?;
 
                     if local_config == remote_config {
                         println!(
                             "no difference {}@{}:{}",
-                            cli_config.remote.user, server, real_path
+                            cli_config.remote.user,
+                            &server.name(),
+                            real_path
                         );
                         continue;
                     } else {
                         println!(
                             "found the difference {}@{}:{}",
-                            cli_config.remote.user, server, real_path
+                            cli_config.remote.user,
+                            &server.name(),
+                            real_path
                         );
                     }
                     if !opt.dry_run {
                         remote_client
-                            .create(server, target, path, local_config)
+                            .create(&server.name(), target, path, local_config)
                             .await?;
                     }
                     println!(
                         "update {}@{}:{}",
                         cli_config.remote.user,
-                        server,
+                        &server.name(),
                         real_path.as_str().green()
                     );
                 } else {
                     if !opt.dry_run {
                         remote_client
-                            .create(server, target, path, local_config)
+                            .create(&server.name(), target, path, local_config)
                             .await?;
                     }
                     println!(
                         "create {}@{}:{}",
                         cli_config.remote.user,
-                        server,
+                        &server.name(),
                         real_path.as_str().green()
                     );
                 }

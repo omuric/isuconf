@@ -11,9 +11,22 @@ fn default_as_false() -> bool {
 }
 
 #[derive(Deserialize, Clone)]
+pub struct ServerConfig {
+    pub alias: Option<String>,
+    pub host: String,
+}
+
+impl ServerConfig {
+    pub fn name(&self) -> String {
+        self.alias.to_owned().unwrap_or_else(|| self.host.clone())
+    }
+}
+
+#[derive(Deserialize, Clone)]
 pub struct RemoteConfig {
-    pub servers: Vec<String>,
+    pub servers: Vec<ServerConfig>,
     pub user: String,
+    pub identity: Option<String>,
 }
 
 #[derive(Deserialize, Clone)]

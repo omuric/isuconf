@@ -33,18 +33,18 @@ impl LocalConfigClient {
         }
     }
 
-    fn parent_path(&self, server: &str, target: &TargetConfig) -> PathBuf {
+    fn parent_path(&self, server_name: &str, target: &TargetConfig) -> PathBuf {
         let path = Path::new(&self.config.config_root_path);
         if !target.only {
-            return path.join(server);
+            return path.join(server_name);
         }
         path.to_owned()
     }
 
-    fn path(&self, server: &str, target: &TargetConfig) -> Result<PathBuf> {
+    fn path(&self, server_name: &str, target: &TargetConfig) -> Result<PathBuf> {
         let target_path = Path::new(&target.path);
         let path = self
-            .parent_path(server, target)
+            .parent_path(server_name, target)
             .join(if target_path.is_absolute() {
                 target_path.strip_prefix("/")?
             } else {
@@ -53,8 +53,8 @@ impl LocalConfigClient {
         Ok(path)
     }
 
-    pub async fn exists(&self, server: &str, target: &TargetConfig) -> Result<bool> {
-        Ok(self.path(server, target)?.exists())
+    pub async fn exists(&self, server_name: &str, target: &TargetConfig) -> Result<bool> {
+        Ok(self.path(server_name, target)?.exists())
     }
 
     pub async fn exists_relative_path(
@@ -68,13 +68,13 @@ impl LocalConfigClient {
 
     pub async fn file_relative_paths(
         &self,
-        server: &str,
+        server_name: &str,
         target: &TargetConfig,
     ) -> Result<Vec<PathBuf>> {
-        if !self.exists(server, target).await? {
+        if !self.exists(server_name, target).await? {
             return Ok(vec![]);
         }
-        let path = self.path(server, target)?;
+        let path = self.path(server_name, target)?;
         let paths = if path.is_file() {
             vec![path.clone()]
         } else if path.is_dir() {
