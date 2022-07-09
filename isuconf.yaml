@@ -1,8 +1,15 @@
 remote:
   servers:
-    - is1
-    - is2
+    - alias: is1
+      host: xx.xx.xx.xx
+    - alias: is2
+      host: xx.xx.xx.xx
+    - alias: is3
+      host: xx.xx.xx.xx
+    - alias: bench
+      host: xx.xx.xx.xx
   user: isucon
+  identity: ~/.ssh/isucon.pem
 local:
   config_root_path: ./config
 targets:
