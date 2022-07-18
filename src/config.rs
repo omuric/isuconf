@@ -54,7 +54,7 @@ pub struct CliConfig {
     pub targets: Vec<TargetConfig>,
 }
 
-pub async fn read_config(config_path: String) -> Result<CliConfig> {
+pub async fn read_config(config_path: &str) -> Result<CliConfig> {
     let json = fs::read_to_string(&config_path).await.with_context(|| {
         format!(
             "Not found configuration file. (config_path={})",
