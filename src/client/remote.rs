@@ -135,10 +135,7 @@ impl RemoteConfigClient {
         target: &TargetConfig,
         relative_path: &Path,
     ) -> Result<PathBuf> {
-        Ok(join_path(
-            &Path::new(&target.path).to_owned(),
-            relative_path,
-        ))
+        Ok(join_path(Path::new(&target.path), relative_path))
     }
 
     pub async fn get(
@@ -202,7 +199,7 @@ impl RemoteConfigClient {
             if let Some(parent) = path.parent() {
                 self.remote_command(
                     server_name,
-                    &format!("mkdir -p {}", convert_to_string(&parent.to_owned())?),
+                    &format!("mkdir -p {}", convert_to_string(parent)?),
                     true,
                 )
                 .await?;
