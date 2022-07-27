@@ -44,7 +44,7 @@ pub struct TargetConfig {
     #[serde(default = "default_as_false")]
     pub sudo: bool,
     #[serde(default = "default_as_false")]
-    pub only: bool,
+    pub shared: bool,
 }
 
 #[derive(Deserialize, Clone)]

@@ -35,7 +35,7 @@ impl LocalConfigClient {
 
     fn parent_path(&self, server_name: &str, target: &TargetConfig) -> PathBuf {
         let path = Path::new(&self.config.config_root_path);
-        if !target.only {
+        if !target.shared {
             return path.join(server_name);
         }
         path.to_owned()

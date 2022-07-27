@@ -19,21 +19,21 @@ targets:
     sudo: true
   - path: /etc/nginx/nginx.conf
     sudo: true
-    only: true
+    shared: true
   - path: /etc/nginx/sites-enabled
     sudo: true
-    only: true
+    shared: true
   - path: /etc/mysql/my.cnf
     sudo: true
-    only: true
+    shared: true
   - path: /etc/mysql/conf.d
     sudo: true
-    only: true
+    shared: true
   - path: /etc/mysql/mysql.conf.d
     sudo: true
-    only: true
+    shared: true
   - path: ~/env.sh
   - path: ~/kataribe.toml
-    only: true
+    shared: true
   - path: ~/isuumo/webapp/mysql
-    only: true
+    shared: true

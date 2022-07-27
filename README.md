@@ -51,7 +51,7 @@ targets:
     sudo: true
   - path: /etc/sysctl.conf
     sudo: true
-    only: true
+    shared: true
 
 ```
 
@@ -68,7 +68,7 @@ targets:
 |          | push            | boolean | Push local config. (default: true)                                                                                                                                                                                           |
 |          | pull            | boolean | Pull remote config. (default: true)                                                                                                                                                                                          | 
 |          | sudo            | boolean | Use sudo to operate the remote configuration. (default: false)                                                                                                                                                               | 
-|          | only            | boolean | Use the same configuration for all remote servers. (default: false)<br>The layout of the local file is as follows.<br>`false`: `./{local.config_root_dir}/{server}/{config}`<br>`true`: `./{local.config_root_dir}/{config}` | 
+|          | shared          | boolean | Use the same configuration for all remote servers. (default: false)<br>The layout of the local file is as follows.<br>`false`: `./{local.config_root_dir}/{server}/{config}`<br>`true`: `./{local.config_root_dir}/{config}` | 
 
 ## Usage
 

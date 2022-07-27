@@ -67,7 +67,7 @@ async fn list(opt: ListOpt) -> Result<()> {
     println!("{}", "local".purple());
     for server in &config.remote.servers {
         for target in &config.targets {
-            if target.only {
+            if target.shared {
                 continue;
             }
             let exist = local_client.exists(&server.name(), target).await?;
@@ -107,7 +107,7 @@ async fn list(opt: ListOpt) -> Result<()> {
     }
     if let Some(server) = &config.remote.servers.get(0) {
         for target in &config.targets {
-            if !target.only {
+            if !target.shared {
                 continue;
             }
             let exist = local_client.exists(&server.name(), target).await?;
@@ -265,7 +265,7 @@ async fn pull(opt: PullOpt) -> Result<()> {
                 );
                 continue;
             }
-            if idx >= 1 && target.only {
+            if idx >= 1 && target.shared {
                 continue;
             }
 
@@ -414,7 +414,7 @@ async fn push(opt: PushOpt) -> Result<()> {
                     Path::new(""),
                 )?)?;
                 println!("not found {}", real_path.as_str().red());
-                if target.only {
+                if target.shared {
                     break;
                 } else {
                     continue;
