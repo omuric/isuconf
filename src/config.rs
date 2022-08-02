@@ -34,7 +34,7 @@ pub struct LocalConfig {
     pub config_root_path: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct TargetConfig {
     pub path: String,
     #[serde(default = "default_as_true")]
