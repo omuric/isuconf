@@ -27,6 +27,7 @@ pub struct RemoteConfig {
     pub servers: Vec<ServerConfig>,
     pub user: String,
     pub identity: Option<String>,
+    pub timeout: Option<u64>,
 }
 
 #[derive(Deserialize, Clone)]
