@@ -6,7 +6,9 @@ use itertools::Itertools;
 use openssh::{KnownHosts, Session, SessionBuilder};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::time::timeout;
 
 pub struct RemoteConfigClient {
     config: RemoteConfig,
@@ -24,9 +26,12 @@ impl RemoteConfigClient {
                 builder.keyfile(identity);
             }
             builder.control_directory("/tmp");
-            let session = builder
-                .connect(format!("ssh://{}@{}", config.user, server.host))
-                .await?;
+            let session = timeout(
+                Duration::from_secs(config.timeout.unwrap_or(5)),
+                builder.connect(format!("ssh://{}@{}", config.user, server.host)),
+            )
+            .await
+            .map_err(|_| anyhow!("Timeout connect to {}@{}", config.user, server.host))??;
 
             sessions.insert(server.name(), session);
         }
@@ -42,8 +47,8 @@ impl RemoteConfigClient {
     async fn remote_session(&self, server_name: &str) -> Result<&Session> {
         let session = self
             .sessions
-            .get(&server_name.to_owned())
-            .with_context(|| format!("Not found connection. (server={})", server_name))?;
+            .get(server_name)
+            .with_context(|| format!("Not found connection. (server={})", &server_name))?;
         Ok(session)
     }
 

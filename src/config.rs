@@ -27,6 +27,7 @@ pub struct RemoteConfig {
     pub servers: Vec<ServerConfig>,
     pub user: String,
     pub identity: Option<String>,
+    pub timeout: Option<u64>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -34,7 +35,7 @@ pub struct LocalConfig {
     pub config_root_path: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct TargetConfig {
     pub path: String,
     #[serde(default = "default_as_true")]
