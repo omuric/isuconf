@@ -128,7 +128,7 @@ struct PushContext {
 async fn execute_push_task(task: PushTask, ctx: &PushContext) -> Result<PushTaskResult> {
     let local_path = convert_to_string(&task.local.path)?;
 
-    let file_message = format!("{}", local_path);
+    let file_message = local_path;
     let file_message_len_diff = ctx.file_message_len_max - file_message.len();
 
     let local_file_message = format!("{}{}", file_message, " ".repeat(file_message_len_diff));
