@@ -1,6 +1,7 @@
 # isuconf
 
-Isuconf is tool for manage remote server configs via ssh.
+Isuconf is tool for manage remote server configs via ssh.  
+This is a tool designed for use with ISUCON.
 
 ![](.img/screenshot.png)
 
@@ -59,7 +60,8 @@ targets:
 |----------|-----------------| ------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | remote   | servers         | array   | Target remote servers.                                                                                                                                                                                                       | 
 |          | user            | string  | User to operate remote server.                                                                                                                                                                                               | 
-|          | identity        | string  | Identity file to connect remote server.                                                                                                                                                                                      | 
+|          | identity        | string  | Identity file to connect remote server.  (optional)                                                                                                                                                                          | 
+|          | timeout         | string  | Timeout seconds on remote server connection. (optional)                                                                                                                                                                  | 
 | server   | alias           | string  | Remote server alias name. (optional)                                                                                                                                                                                         | 
 |          | host            | string  | Remote server hostname.                                                                                                                                                                                                      | 
 | local    | config_root_dir | string  | Root directory of the configuration to be placed locally.                                                                                                                                                                    | 
@@ -73,10 +75,8 @@ targets:
 ## Usage
 
 ```bash
-# View list configs.
-isuconf list
 # Specify the cli configuration file. (default: ./isuconf.yaml)
-isuconf list --config ./isuconf.yaml
+isuconf pull --dry-run --config ./isuconf.yaml
 # Pull configuration files from remote servers.
 isuconf pull --dry-run
 isuconf pull
@@ -90,4 +90,3 @@ isuconf ssh is1
 # Print ~/.ssh/config
 isuconf ssh-config
 ```
-
