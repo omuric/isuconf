@@ -45,6 +45,7 @@ impl RemoteConfigClient {
     }
 
     async fn remote_session(&self, server_name: &str) -> Result<&Session> {
+        let server_name = server_name;
         let session = self
             .sessions
             .get(server_name)

@@ -3,6 +3,7 @@ use crate::config::{read_config, TargetConfig};
 use anyhow::Result;
 use colored::Colorize;
 use futures::StreamExt;
+use itertools::Itertools;
 use std::cmp::max;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
@@ -358,10 +359,14 @@ pub async fn push(opt: PushOpt) -> Result<()> {
         file_message_len_max: max(remote_prefix_len_max, local_prefix_len_max),
     };
 
+    for sub_tasks in tasks
+        .into_iter()
+        .chunks(config.concurrency.unwrap_or(10))
+        .into_iter()
     {
         let mut stream = futures::stream::FuturesOrdered::new();
 
-        for task in tasks {
+        for task in sub_tasks {
             stream.push(execute_push_task(task, &ctx));
         }
 

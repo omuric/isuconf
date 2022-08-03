@@ -50,6 +50,7 @@ pub struct TargetConfig {
 
 #[derive(Deserialize, Clone)]
 pub struct CliConfig {
+    pub concurrency: Option<usize>,
     pub remote: RemoteConfig,
     pub local: LocalConfig,
     pub targets: Vec<TargetConfig>,
