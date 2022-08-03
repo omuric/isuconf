@@ -65,6 +65,7 @@ impl PushLocalTaskState {
 pub struct PushLocalTask {
     path: PathBuf,
     state: PushLocalTaskState,
+    is_hidden: bool,
 }
 
 #[derive(Debug)]
@@ -136,7 +137,11 @@ async fn execute_push_task(task: PushTask, ctx: &PushContext) -> Result<PushTask
     match &task.local.state {
         PushLocalTaskState::Skip | PushLocalTaskState::NotExists => {
             return Ok(PushTaskResult {
-                messages: vec![task.local.state.message(&local_file_message)],
+                messages: if task.local.is_hidden {
+                    vec![]
+                } else {
+                    vec![task.local.state.message(&local_file_message)]
+                },
             })
         }
         _ => {}
@@ -188,7 +193,11 @@ async fn execute_push_task(task: PushTask, ctx: &PushContext) -> Result<PushTask
             let local_state = PushLocalTaskState::Synced;
             let local_message = local_state.message(&local_file_message);
             return Ok(PushTaskResult {
-                messages: vec![local_message],
+                messages: if task.local.is_hidden {
+                    vec![]
+                } else {
+                    vec![local_message]
+                },
             });
         }
         if !ctx.dry_run {
@@ -206,7 +215,11 @@ async fn execute_push_task(task: PushTask, ctx: &PushContext) -> Result<PushTask
         let remote_state = PushRemoteTaskState::Update;
         let remote_message = remote_state.message(&remote_file_message);
         Ok(PushTaskResult {
-            messages: vec![local_message, remote_message],
+            messages: if task.local.is_hidden {
+                vec![remote_message]
+            } else {
+                vec![local_message, remote_message]
+            },
         })
     } else {
         if !ctx.dry_run {
@@ -224,7 +237,11 @@ async fn execute_push_task(task: PushTask, ctx: &PushContext) -> Result<PushTask
         let remote_state = PushRemoteTaskState::Create;
         let remote_message = remote_state.message(&remote_file_message);
         Ok(PushTaskResult {
-            messages: vec![local_message, remote_message],
+            messages: if task.local.is_hidden {
+                vec![remote_message]
+            } else {
+                vec![local_message, remote_message]
+            },
         })
     }
 }
@@ -247,15 +264,14 @@ pub async fn push(opt: PushOpt) -> Result<()> {
         }
 
         for (idx, server) in config.remote.servers.iter().enumerate() {
-            if idx >= 1 && target.shared {
-                continue;
-            }
+            let is_hidden_local = idx >= 1 && target.shared;
             let local_path = local_client.real_path(&server.name(), target, Path::new(""))?;
             if !target.push {
                 tasks.push(PushTask {
                     local: PushLocalTask {
                         path: local_path.to_owned(),
                         state: PushLocalTaskState::Skip,
+                        is_hidden: is_hidden_local,
                     },
                     remote: PushRemoteTask {
                         relative_path: PathBuf::new(),
@@ -273,6 +289,7 @@ pub async fn push(opt: PushOpt) -> Result<()> {
                     local: PushLocalTask {
                         path: local_path.to_owned(),
                         state: PushLocalTaskState::NotExists,
+                        is_hidden: is_hidden_local,
                     },
                     remote: PushRemoteTask {
                         relative_path: PathBuf::new(),
@@ -288,6 +305,7 @@ pub async fn push(opt: PushOpt) -> Result<()> {
                     local: PushLocalTask {
                         path: local_path,
                         state: PushLocalTaskState::Progress,
+                        is_hidden: is_hidden_local,
                     },
                     remote: PushRemoteTask {
                         relative_path: path.to_owned(),
