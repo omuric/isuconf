@@ -5,6 +5,7 @@ use colored::Colorize;
 use futures::StreamExt;
 use itertools::Itertools;
 use std::cmp::max;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 use structopt::StructOpt;
@@ -264,6 +265,8 @@ pub async fn push(opt: PushOpt) -> Result<()> {
             }
         }
 
+        let mut server_names_by_path: HashMap<PathBuf, Vec<String>> = HashMap::new();
+
         for (idx, server) in config.remote.servers.iter().enumerate() {
             let is_hidden_local = idx >= 1 && target.shared;
             let local_path = local_client.real_path(&server.name(), target, Path::new(""))?;
@@ -300,8 +303,18 @@ pub async fn push(opt: PushOpt) -> Result<()> {
                 });
                 continue;
             }
-            for path in &paths {
-                let local_path = local_client.real_path(&server.name(), target, path)?;
+
+            for path in paths {
+                server_names_by_path
+                    .entry(path)
+                    .and_modify(|server_names| server_names.push(server.name()))
+                    .or_insert(vec![server.name()]);
+            }
+        }
+        for (path, server_names) in server_names_by_path {
+            for (idx, server_name) in server_names.iter().enumerate() {
+                let is_hidden_local = idx >= 1 && target.shared;
+                let local_path = local_client.real_path(&server_name, target, &path)?;
                 tasks.push(PushTask {
                     local: PushLocalTask {
                         path: local_path,
@@ -310,7 +323,7 @@ pub async fn push(opt: PushOpt) -> Result<()> {
                     },
                     remote: PushRemoteTask {
                         relative_path: path.to_owned(),
-                        server_name: server.name(),
+                        server_name: server_name.to_owned(),
                     },
                     target: target.to_owned(),
                 })
