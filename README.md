@@ -10,7 +10,7 @@ This is a tool designed for use with ISUCON.
 Download the binary directly.
 
 ```bash
-wget https://github.com/omuric/isuconf/releases/download/0.2.1/isuconf_0.2.1_x86_64-unknown-linux-musl.zip
+wget https://github.com/omuric/isuconf/releases/download/0.2.2/isuconf_0.2.2_x86_64-unknown-linux-musl.zip
 unzip isuconf_*_x86_64-unknown-linux-musl.zip isuconf
 rm isuconf_*_x86_64-unknown-linux-musl.zip
 ./isuconf --help
