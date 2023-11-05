@@ -183,7 +183,7 @@ impl RemoteConfigClient {
             path = path.replacen('~', format!("/home/{}", self.config.user).as_str(), 1);
         }
 
-        self.remote_command(server_name, &format!("stat -c %s {}", path), target.sudo)
+        self.remote_command(server_name, &format!("stat -L -c %s {}", path), target.sudo)
             .await?
             .trim()
             .parse::<u64>()
