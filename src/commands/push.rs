@@ -318,8 +318,8 @@ pub async fn push(opt: PushOpt) -> Result<()> {
         for (path, server_names) in server_names_by_path {
             for (idx, server_name) in server_names.iter().enumerate() {
                 let is_hidden_local = idx >= 1 && target.shared;
-                let local_path = local_client.real_path(&server_name, target, &path)?;
-                let len = local_client.len(&server_name, target, &path).await?;
+                let local_path = local_client.real_path(server_name, target, &path)?;
+                let len = local_client.len(server_name, target, &path).await?;
                 let state = if len > config.max_file_size()? {
                     PushLocalTaskState::TooLarge
                 } else {
