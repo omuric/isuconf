@@ -19,3 +19,4 @@ tokio = { version = "1", features = ["full"] }
 openssh = "0.8"
 async-recursion = "1.0.4"
 colored = "2"
+parse-size = "1"
