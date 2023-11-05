@@ -362,7 +362,7 @@ pub async fn pull(opt: PullOpt) -> Result<()> {
         let mut stream = futures::stream::FuturesOrdered::new();
 
         for task in sub_tasks {
-            stream.push(execute_pull_task(task, &ctx));
+            stream.push_back(execute_pull_task(task, &ctx));
         }
 
         while let Some(result) = stream.next().await {
