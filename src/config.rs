@@ -51,9 +51,25 @@ pub struct TargetConfig {
 #[derive(Deserialize, Clone)]
 pub struct CliConfig {
     pub concurrency: Option<usize>,
+    pub max_file_size: Option<String>,
     pub remote: RemoteConfig,
     pub local: LocalConfig,
     pub targets: Vec<TargetConfig>,
+}
+
+impl CliConfig {
+    pub fn max_file_size(&self) -> Result<u64> {
+        Ok(self
+            .max_file_size
+            .as_ref()
+            .map(|max_file_size| {
+                parse_size::parse_size(max_file_size).ok().with_context(|| {
+                    format!("Invalid max_file_size. (max_file_size={})", &max_file_size)
+                })
+            })
+            .transpose()?
+            .unwrap_or(100 * 1024))
+    }
 }
 
 pub async fn read_config(config_path: &str) -> Result<CliConfig> {

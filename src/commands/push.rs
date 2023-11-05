@@ -26,6 +26,7 @@ pub struct PushOpt {
 #[derive(Debug)]
 pub enum PushLocalTaskState {
     Skip,
+    TooLarge,
     NotExists,
     Progress,
     Synced,
@@ -37,6 +38,7 @@ impl PushLocalTaskState {
     fn message(&self, file_message: &str) -> String {
         let icon = match self {
             PushLocalTaskState::NotExists => "✕".red(),
+            PushLocalTaskState::TooLarge => " ".normal(),
             PushLocalTaskState::Skip => " ".normal(),
             PushLocalTaskState::Progress => " ".normal(),
             PushLocalTaskState::Synced => " ".normal(),
@@ -45,6 +47,7 @@ impl PushLocalTaskState {
         };
         let message = match self {
             PushLocalTaskState::NotExists => "not exists".normal(),
+            PushLocalTaskState::TooLarge => "too large".normal(),
             PushLocalTaskState::Skip => "skip".normal(),
             PushLocalTaskState::Progress => "".normal(),
             PushLocalTaskState::Synced => "synced 📌".normal(),
@@ -53,6 +56,7 @@ impl PushLocalTaskState {
         };
         let file_message = match self {
             PushLocalTaskState::NotExists => file_message.red(),
+            PushLocalTaskState::TooLarge => file_message.normal(),
             PushLocalTaskState::Skip => file_message.normal(),
             PushLocalTaskState::Progress => file_message.normal(),
             PushLocalTaskState::Synced => file_message.normal(),
@@ -137,7 +141,7 @@ async fn execute_push_task(task: PushTask, ctx: &PushContext) -> Result<PushTask
     let local_file_message = format!("{}{}", file_message, " ".repeat(file_message_len_diff));
 
     match &task.local.state {
-        PushLocalTaskState::Skip | PushLocalTaskState::NotExists => {
+        PushLocalTaskState::Skip | PushLocalTaskState::TooLarge | PushLocalTaskState::NotExists => {
             return Ok(PushTaskResult {
                 messages: if task.local.is_hidden {
                     vec![]
@@ -315,10 +319,16 @@ pub async fn push(opt: PushOpt) -> Result<()> {
             for (idx, server_name) in server_names.iter().enumerate() {
                 let is_hidden_local = idx >= 1 && target.shared;
                 let local_path = local_client.real_path(&server_name, target, &path)?;
+                let len = local_client.len(&server_name, target, &path).await?;
+                let state = if len > config.max_file_size()? {
+                    PushLocalTaskState::TooLarge
+                } else {
+                    PushLocalTaskState::Progress
+                };
                 tasks.push(PushTask {
                     local: PushLocalTask {
                         path: local_path,
-                        state: PushLocalTaskState::Progress,
+                        state,
                         is_hidden: is_hidden_local,
                     },
                     remote: PushRemoteTask {

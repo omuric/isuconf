@@ -26,6 +26,7 @@ pub struct PullOpt {
 #[derive(Debug)]
 pub enum PullRemoteTaskState {
     Skip,
+    TooLarge,
     NotExists,
     Progress,
     Synced,
@@ -37,6 +38,7 @@ impl PullRemoteTaskState {
     fn message(&self, file_message: &str) -> String {
         let icon = match self {
             PullRemoteTaskState::NotExists => "✕".red(),
+            PullRemoteTaskState::TooLarge => " ".normal(),
             PullRemoteTaskState::Skip => " ".normal(),
             PullRemoteTaskState::Progress => " ".normal(),
             PullRemoteTaskState::Synced => " ".normal(),
@@ -45,6 +47,7 @@ impl PullRemoteTaskState {
         };
         let message = match self {
             PullRemoteTaskState::NotExists => "not exists".normal(),
+            PullRemoteTaskState::TooLarge => "too large".normal(),
             PullRemoteTaskState::Skip => "skip".normal(),
             PullRemoteTaskState::Progress => "".normal(),
             PullRemoteTaskState::Synced => "synced 📌".normal(),
@@ -53,6 +56,7 @@ impl PullRemoteTaskState {
         };
         let file_message = match self {
             PullRemoteTaskState::NotExists => file_message.red(),
+            PullRemoteTaskState::TooLarge => file_message.normal(),
             PullRemoteTaskState::Skip => file_message.normal(),
             PullRemoteTaskState::Progress => file_message.normal(),
             PullRemoteTaskState::Synced => file_message.normal(),
@@ -145,7 +149,9 @@ async fn execute_pull_task(task: PullTask, ctx: &PullContext) -> Result<PullTask
     let remote_file_message = format!("{}{}", file_message, " ".repeat(file_message_len_diff));
 
     match &task.remote.state {
-        PullRemoteTaskState::Skip | PullRemoteTaskState::NotExists => {
+        PullRemoteTaskState::Skip
+        | PullRemoteTaskState::TooLarge
+        | PullRemoteTaskState::NotExists => {
             return Ok(PullTaskResult {
                 messages: vec![task.remote.state.message(&remote_file_message)],
             });
@@ -270,6 +276,7 @@ pub async fn pull(opt: PullOpt) -> Result<()> {
             let paths = remote_client
                 .file_relative_paths(&server.name(), target)
                 .await?;
+
             if paths.is_empty() {
                 tasks.push(PullTask {
                     remote: PullRemoteTask {
@@ -284,13 +291,20 @@ pub async fn pull(opt: PullOpt) -> Result<()> {
                 });
                 continue;
             }
+
             for path in &paths {
                 let local_path = local_client.real_path(&server.name(), target, path)?;
+                let len = remote_client.len(&server.name(), target, path).await?;
+                let state = if len > config.max_file_size()? {
+                    PullRemoteTaskState::TooLarge
+                } else {
+                    PullRemoteTaskState::Progress
+                };
                 tasks.push(PullTask {
                     remote: PullRemoteTask {
                         relative_path: path.to_owned(),
                         server_name: server.name(),
-                        state: PullRemoteTaskState::Progress,
+                        state,
                     },
                     local: PullLocalTask { path: local_path },
                     target: target.to_owned(),

@@ -144,6 +144,26 @@ impl RemoteConfigClient {
         Ok(join_path(Path::new(&target.path), relative_path))
     }
 
+    pub async fn len(
+        &self,
+        server_name: &str,
+        target: &TargetConfig,
+        relative_path: &Path,
+    ) -> Result<u64> {
+        let path = self.real_path(server_name, target, relative_path)?;
+        let mut path = convert_to_string(&path)?;
+
+        if !target.sudo && path.starts_with('~') {
+            path = path.replacen('~', format!("/home/{}", self.config.user).as_str(), 1);
+        }
+
+        self.remote_command(server_name, &format!("stat -c %s {}", path), target.sudo)
+            .await?
+            .trim()
+            .parse::<u64>()
+            .map_err(|_| anyhow!("Failed to parse stat result."))
+    }
+
     pub async fn get(
         &self,
         server_name: &str,

@@ -98,6 +98,16 @@ impl LocalConfigClient {
         Ok(join_path(&self.path(server, target)?, relative_path))
     }
 
+    pub async fn len(
+        &self,
+        server: &str,
+        target: &TargetConfig,
+        relative_path: &Path,
+    ) -> Result<u64> {
+        let path = self.real_path(server, target, relative_path)?;
+        Ok(fs::metadata(path).await?.len())
+    }
+
     pub async fn get(
         &self,
         server: &str,
