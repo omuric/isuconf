@@ -68,7 +68,7 @@ impl CliConfig {
                 })
             })
             .transpose()?
-            .unwrap_or(100 * 1024))
+            .unwrap_or(300 * 1024))
     }
 }
 

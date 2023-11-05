@@ -72,7 +72,7 @@ targets:
 |               | sudo            | boolean | Use sudo to operate the remote configuration. (default: false)                                                                                                                                                               | 
 |               | shared          | boolean | Use the same configuration for all remote servers. (default: false)<br>The layout of the local file is as follows.<br>`false`: `./{local.config_root_dir}/{server}/{config}`<br>`true`: `./{local.config_root_dir}/{config}` | 
 | concurrency   |                 | number  | Number of parallel task executions. (default: 10)                                                                                                                                                                            | 
-| max_file_size |                 | string  | Maximum file size. (default: 10k)<br>Files larger than this will be skipped.                                                                                                                                                 | 
+| max_file_size |                 | string  | Maximum file size. (default: 300k)<br>Files larger than this will be skipped.                                                                                                                                                | 
 
 ## Usage
 
