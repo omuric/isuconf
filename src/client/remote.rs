@@ -273,6 +273,16 @@ impl RemoteConfigClient {
             if path.starts_with('~') {
                 path = path.replacen('~', format!("/home/{}", self.config.user).as_str(), 1);
             }
+            let path = Path::new(&path);
+
+            if let Some(parent) = path.parent() {
+                self.remote_command(
+                    server_name,
+                    &format!("mkdir -p {}", convert_to_string(parent)?),
+                    false,
+                )
+                .await?;
+            }
 
             let mut child = sftp_session!(session);
             let sftp = sftp!(child);
