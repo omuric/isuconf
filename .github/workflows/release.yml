@@ -1,22 +1,33 @@
-# .github/workflows/release.yml
-
+name: Release
 on:
   release:
-    types: [created]
-
+    types: [published]
+permissions:
+  contents: write
 jobs:
   release:
-    name: release ${{ matrix.target }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [x86_64-unknown-linux-musl]
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@latest
+      - uses: actions/checkout@v7.0.1
+      - name: Install Rust and musl target
+        run: |
+          rustup show active-toolchain
+          rustup target add x86_64-unknown-linux-musl
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+      - run: cargo test --locked
+      - run: cargo build --locked --release --target x86_64-unknown-linux-musl
+      - name: Package binary
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUSTTARGET: ${{ matrix.target }}
-          EXTRA_FILES: "README.md LICENSE"
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          mkdir -p dist
+          cp target/x86_64-unknown-linux-musl/release/isuconf README.md LICENSE dist/
+          cd dist
+          zip "isuconf_${TAG}_x86_64-unknown-linux-musl.zip" isuconf README.md LICENSE
+          sha256sum "isuconf_${TAG}_x86_64-unknown-linux-musl.zip" > "isuconf_${TAG}_x86_64-unknown-linux-musl.zip.sha256sum"
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" dist/*.zip dist/*.zip.sha256sum
