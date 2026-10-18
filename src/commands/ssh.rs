@@ -1,15 +1,14 @@
-
-use crate::config::{read_config};
+use crate::config::read_config;
 use anyhow::Result;
-use structopt::StructOpt;
+use clap::Parser;
 
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct SshOpt {
     // Config path
-    #[structopt(short, long, default_value = "./isuconf.yaml")]
+    #[arg(short, long, default_value = "./isuconf.yaml")]
     pub config: String,
     // Server name
-    #[structopt(name = "SERVER_NAME")]
+    #[arg(name = "SERVER_NAME")]
     pub server_name: String,
 }
 
