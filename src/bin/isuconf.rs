@@ -1,12 +1,12 @@
 use anyhow::Result;
-use isuconf::commands::pull::{pull, PullOpt};
-use isuconf::commands::push::{push, PushOpt};
-use isuconf::commands::ssh::{ssh, SshOpt};
-use isuconf::commands::ssh_config::{ssh_config, SshConfigOpt};
-use structopt::StructOpt;
+use clap::Parser;
+use isuconf::commands::pull::{PullOpt, pull};
+use isuconf::commands::push::{PushOpt, push};
+use isuconf::commands::ssh::{SshOpt, ssh};
+use isuconf::commands::ssh_config::{SshConfigOpt, ssh_config};
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "isuconf")]
+#[derive(Parser, Debug)]
+#[command(name = "isuconf", version)]
 enum Opt {
     /// Pull configs from remote
     Pull(PullOpt),
@@ -20,7 +20,7 @@ enum Opt {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let opt: Opt = Opt::from_args();
+    let opt: Opt = Opt::parse();
     match opt {
         Opt::Pull(opt) => pull(opt).await,
         Opt::Push(opt) => push(opt).await,

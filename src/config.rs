@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use serde_derive::Deserialize;
+use serde::Deserialize;
 use tokio::fs;
 
 fn default_as_true() -> bool {
@@ -64,7 +64,7 @@ impl CliConfig {
             .as_ref()
             .map(|max_file_size| {
                 parse_size::parse_size(max_file_size).ok().with_context(|| {
-                    format!("Invalid max_file_size. (max_file_size={})", &max_file_size)
+                    format!("Invalid max_file_size. (max_file_size={})", max_file_size)
                 })
             })
             .transpose()?
@@ -76,10 +76,10 @@ pub async fn read_config(config_path: &str) -> Result<CliConfig> {
     let json = fs::read_to_string(&config_path).await.with_context(|| {
         format!(
             "Not found configuration file. (config_path={})",
-            &config_path
+            config_path
         )
     })?;
-    let config = serde_yaml::from_str(&json)
+    let config: CliConfig = serde_saphyr::from_str(&json)
         .with_context(|| format!("Invalid config file. (config_path={})", config_path))?;
     Ok(config)
 }

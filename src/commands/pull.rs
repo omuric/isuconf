@@ -1,25 +1,25 @@
-use crate::client::{convert_to_string, is_target_config, LocalConfigClient, RemoteConfigClient};
-use crate::config::{read_config, TargetConfig};
+use crate::client::{LocalConfigClient, RemoteConfigClient, convert_to_string, is_target_config};
+use crate::config::{TargetConfig, read_config};
 use anyhow::Result;
+use clap::Parser;
 use colored::Colorize;
 use futures::StreamExt;
 use itertools::Itertools;
 use std::cmp::max;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 use tokio::time::Instant;
 
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct PullOpt {
     // Config path
-    #[structopt(short, long, default_value = "./isuconf.yaml")]
+    #[arg(short, long, default_value = "./isuconf.yaml")]
     pub config: String,
     // Dry run
-    #[structopt(short, long)]
+    #[arg(short, long)]
     pub dry_run: bool,
     // Target config
-    #[structopt(name = "TARGET_CONFIG_PATH")]
+    #[arg(name = "TARGET_CONFIG_PATH")]
     pub target_config_path: Option<String>,
 }
 
@@ -140,8 +140,8 @@ async fn execute_pull_task(task: PullTask, ctx: &PullContext) -> Result<PullTask
 
     let file_message = format!(
         "{}@{}:{}",
-        &ctx.remote_user,
-        &task.remote.server_name,
+        ctx.remote_user,
+        task.remote.server_name,
         convert_to_string(remote_path)?
     );
     let file_message_len_diff = ctx.file_message_len_max - file_message.len();
@@ -248,10 +248,10 @@ pub async fn pull(opt: PullOpt) -> Result<()> {
     let mut tasks = vec![];
 
     for target in &config.targets {
-        if let Some(target_config_path) = &opt.target_config_path {
-            if !is_target_config(&config, target, target_config_path) {
-                continue;
-            }
+        if let Some(target_config_path) = &opt.target_config_path
+            && !is_target_config(&config, target, target_config_path)
+        {
+            continue;
         }
 
         for (idx, server) in config.remote.servers.iter().enumerate() {
@@ -324,8 +324,8 @@ pub async fn pull(opt: PullOpt) -> Result<()> {
 
             let prefix = format!(
                 "{}@{}:{}",
-                &config.remote.user,
-                &target.remote.server_name,
+                config.remote.user,
+                target.remote.server_name,
                 convert_to_string(remote_path)?
             );
             Ok(prefix.len())

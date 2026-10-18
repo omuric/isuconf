@@ -1,7 +1,7 @@
 use crate::config::{CliConfig, TargetConfig};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow, ensure};
 use itertools::Itertools;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 pub fn join_path(parent_path: &Path, path: &Path) -> PathBuf {
     if path == Path::new("") {
@@ -32,14 +32,25 @@ pub fn is_target_config(
     prefixes.push(format!("{}/", cli_config.local.config_root_path.clone()));
 
     for prefix in prefixes {
-        if let Some(target_config_path) = target_config_path.strip_prefix(&prefix) {
-            if config.path == target_config_path {
-                return true;
-            }
+        if let Some(target_config_path) = target_config_path.strip_prefix(&prefix)
+            && config.path == target_config_path
+        {
+            return true;
         }
     }
     if config.path == target_config_path {
         return true;
     }
     false
+}
+
+/// Paths received from a remote server must never escape their configured target.
+pub fn validate_relative_path(path: &Path) -> Result<()> {
+    ensure!(
+        path.components()
+            .all(|part| matches!(part, Component::Normal(_) | Component::CurDir)),
+        "Unsafe relative path: {}",
+        path.display()
+    );
+    Ok(())
 }
